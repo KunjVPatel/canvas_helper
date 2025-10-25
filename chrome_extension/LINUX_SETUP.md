@@ -167,7 +167,7 @@ cd ~/Downloads/canvas_downloads
 mkdir -p 2024_Spring
 mv *Spring* 2024_Spring/ 2>/dev/null
 
-# Move fall courses  
+# Move fall courses
 mkdir -p 2024_Fall
 mv *Fall* 2024_Fall/ 2>/dev/null
 ```
@@ -223,5 +223,3 @@ tar -xzf canvas_backup_YYYYMMDD.tar.gz -C ~/
    ```bash
    alias courses='cd ~/Downloads/canvas_downloads && ls'
    ```
-
-Happy downloading! 🚀
