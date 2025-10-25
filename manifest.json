@@ -1,0 +1,44 @@
+{
+  "manifest_version": 3,
+  "name": "Canvas Helper",
+  "version": "0.1.0",
+  "description": "Course material based questioning tool",
+  "permissions": ["downloads", "activeTab", "scripting", "storage"],
+  "host_permissions": [
+    "https://*.instructure.com/*",
+    "https://canvas.psu.edu/*",
+    "https://psu.instructure.com/*",
+    "https://*.canvas.edu/*",
+    "http://localhost/*"
+  ],
+  "background": {
+    "service_worker": "src/background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://*.instructure.com/*",
+        "https://canvas.psu.edu/*",
+        "https://psu.instructure.com/*",
+        "https://*.canvas.edu/*"
+      ],
+      "js": ["src/content_extractor.js", "src/scraper.js", "src/content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": {
+    "default_popup": "public/popup.html",
+    "default_title": "Canvas Helper"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["src/*.js", "public/*.html"],
+      "matches": [
+        "https://*.instructure.com/*",
+        "https://canvas.psu.edu/*",
+        "https://psu.instructure.com/*",
+        "https://*.canvas.edu/*"
+      ]
+    }
+  ]
+}

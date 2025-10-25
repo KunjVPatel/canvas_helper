@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Canvas Helper Test Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+
+        .test-section {
+            background: white;
+            margin: 20px 0;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+
+        h2 {
+            color: #555;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 10px;
+        }
+
+        canvas {
+            border: 2px solid #ddd;
+            margin: 10px 0;
+            display: block;
+        }
+
+        .file-links {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+
+        .file-links a {
+            display: block;
+            margin: 5px 0;
+            padding: 8px;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            text-decoration: none;
+            color: #333;
+        }
+
+        .file-links a:hover {
+            background: #e3f2fd;
+        }
+
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+
+        button:hover {
+            background: #45a049;
+        }
+
+        .instructions {
+            background: #e8f5e8;
+            padding: 15px;
+            border-left: 4px solid #4CAF50;
+            margin: 20px 0;
+        }
+
+        .warning {
+            background: #fff3cd;
+            padding: 15px;
+            border-left: 4px solid #ffc107;
+            margin: 20px 0;
+            color: #856404;
+        }
+    </style>
+</head>
+<body>
+    <h1>🎨 Canvas Helper Extension Test Page</h1>
+
+    <div class="instructions">
+        <h3>📋 Testing Instructions:</h3>
+        <ol>
+            <li>Make sure the Canvas Helper extension is installed and enabled</li>
+            <li>Click the Canvas Helper icon in your browser toolbar</li>
+            <li>Try both "Download course files" and "Capture first canvas" buttons</li>
+            <li>Check your Downloads folder for results</li>
+            <li>Open browser console (F12) to see debug messages</li>
+        </ol>
+    </div>
+
+    <div class="test-section">
+        <h2>🖼️ Canvas Capture Test</h2>
+        <p>The canvases below should be capturable by the extension:</p>
+
+        <canvas id="testCanvas1" width="400" height="200"></canvas>
+        <button onclick="drawOnCanvas('testCanvas1')">Draw Test Pattern 1</button>
+
+        <canvas id="testCanvas2" width="300" height="150"></canvas>
+        <button onclick="drawOnCanvas('testCanvas2')">Draw Test Pattern 2</button>
+
+        <canvas id="testCanvas3" width="500" height="100"></canvas>
+        <button onclick="animateCanvas()">Start Animation</button>
+    </div>
+
+    <div class="test-section">
+        <h2>📁 File Download Test</h2>
+        <div class="file-links">
+            <p>These mock file links should be detected by the scraper:</p>
+            <a href="/files/document1.pdf" class="file_link">📄 Document 1.pdf</a>
+            <a href="/api/v1/files/12345/download" data-filename="spreadsheet.xlsx">📊 Spreadsheet.xlsx</a>
+            <a href="/files/presentation.pptx?verifier=abc123" title="Download presentation.pptx">📈 Presentation.pptx</a>
+            <a href="#" class="download-file" data-api-endpoint="/files/image.jpg">🖼️ Image.jpg</a>
+            <a href="/courses/123/files/456/download" class="instructure_file_link">📋 Assignment.docx</a>
+        </div>
+        <p><em>Note: These are test links and won't actually download files</em></p>
+    </div>
+
+    <div class="test-section">
+        <h2>🔍 Debug Information</h2>
+        <p>Current URL: <code id="currentUrl"></code></p>
+        <p>Canvas elements found: <span id="canvasCount">0</span></p>
+        <p>File links found: <span id="linkCount">0</span></p>
+        <button onclick="runDiagnostics()">Run Diagnostics</button>
+        <div id="diagnosticsOutput"></div>
+    </div>
+
+    <div class="warning">
+        <h3>⚠️ Expected Behavior:</h3>
+        <ul>
+            <li><strong>Canvas Capture:</strong> Should capture the first visible canvas as a PNG</li>
+            <li><strong>File Download:</strong> May show "Found: 5" but downloads will fail (test links)</li>
+            <li><strong>Console Messages:</strong> Look for "content:", "scraper:", and "background:" messages</li>
+        </ul>
+    </div>
+
+    <script>
+        // Initialize page
+        document.getElementById('currentUrl').textContent = window.location.href;
+        updateCounts();
+
+        function drawOnCanvas(canvasId) {
+            const canvas = document.getElementById(canvasId);
+            const ctx = canvas.getContext('2d');
+
+            // Clear canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw gradient background
+            const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+            gradient.addColorStop(0, '#FF6B6B');
+            gradient.addColorStop(0.5, '#4ECDC4');
+            gradient.addColorStop(1, '#45B7D1');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Draw some shapes
+            ctx.fillStyle = 'white';
+            ctx.font = '20px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('Test Canvas', canvas.width/2, canvas.height/2);
+
+            // Draw current time
+            ctx.font = '12px Arial';
+            ctx.fillText(new Date().toLocaleTimeString(), canvas.width/2, canvas.height/2 + 30);
+
+            // Draw some geometric shapes
+            ctx.fillStyle = 'rgba(255,255,255,0.7)';
+            ctx.beginPath();
+            ctx.arc(50, 50, 30, 0, 2 * Math.PI);
+            ctx.fill();
+
+            ctx.fillRect(canvas.width - 80, 20, 60, 40);
+        }
+
+        function animateCanvas() {
+            const canvas = document.getElementById('testCanvas3');
+            const ctx = canvas.getContext('2d');
+            let x = 0;
+
+            function animate() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                // Moving gradient
+                const gradient = ctx.createLinearGradient(x, 0, x + 200, 0);
+                gradient.addColorStop(0, '#FF6B6B');
+                gradient.addColorStop(0.5, '#4ECDC4');
+                gradient.addColorStop(1, '#45B7D1');
+
+                ctx.fillStyle = gradient;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                // Moving circle
+                ctx.fillStyle = 'white';
+                ctx.beginPath();
+                ctx.arc((x % canvas.width), canvas.height/2, 20, 0, 2 * Math.PI);
+                ctx.fill();
+
+                x += 2;
+                if (x < canvas.width + 200) {
+                    requestAnimationFrame(animate);
+                }
+            }
+            animate();
+        }
+
+        function updateCounts() {
+            document.getElementById('canvasCount').textContent =
+                document.querySelectorAll('canvas').length;
+            document.getElementById('linkCount').textContent =
+                document.querySelectorAll('a[href*="/files/"], a.file_link, a.download-file').length;
+        }
+
+        function runDiagnostics() {
+            const output = document.getElementById('diagnosticsOutput');
+            const canvases = document.querySelectorAll('canvas');
+            const fileLinks = document.querySelectorAll('a[href*="/files/"], a.file_link, a.download-file, a[data-filename], a[data-api-endpoint]');
+
+            let html = '<h4>Diagnostics Results:</h4>';
+            html += '<p><strong>Canvas Elements:</strong></p><ul>';
+
+            canvases.forEach((canvas, i) => {
+                const rect = canvas.getBoundingClientRect();
+                html += `<li>Canvas ${i+1}: ${canvas.width}x${canvas.height} (${rect.width}x${rect.height} visible)</li>`;
+            });
+
+            html += '</ul><p><strong>File Links:</strong></p><ul>';
+
+            fileLinks.forEach((link, i) => {
+                const href = link.getAttribute('href') || link.dataset.apiEndpoint || '';
+                const name = link.textContent.trim() || link.dataset.filename || 'unnamed';
+                html += `<li>Link ${i+1}: ${name} → ${href}</li>`;
+            });
+
+            html += '</ul>';
+            html += '<p><em>Check browser console for extension messages</em></p>';
+
+            output.innerHTML = html;
+        }
+
+        // Draw initial patterns
+        setTimeout(() => {
+            drawOnCanvas('testCanvas1');
+            drawOnCanvas('testCanvas2');
+        }, 100);
+
+        // Log for extension debugging
+        console.log('Canvas Helper Test Page loaded');
+        console.log('Available for testing:', {
+            canvases: document.querySelectorAll('canvas').length,
+            fileLinks: document.querySelectorAll('a[href*="/files/"]').length
+        });
+    </script>
+</body>
+</html>

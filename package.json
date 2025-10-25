@@ -1,0 +1,22 @@
+{
+  "name": "canvas-helper-extension",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Chrome extension for downloading Canvas course files",
+  "devDependencies": {},
+  "scripts": {
+    "lint": "echo \"no lint configured\"",
+    "build": "echo \"Extension is ready to use - no build step required\"",
+    "dev": "echo \"Load the extension in Chrome at chrome://extensions/ in developer mode\"",
+    "package": "echo \"Use chrome://extensions/ > Pack extension to create .crx file\"",
+    "test": "echo \"Navigate to a Canvas course page and test the extension\""
+  },
+  "keywords": [
+    "chrome-extension",
+    "canvas",
+    "file-download",
+    "hackpsu"
+  ],
+  "author": "hackPSU Team",
+  "license": "MIT"
+}
