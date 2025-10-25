@@ -4,19 +4,19 @@ A minimal Chrome extension for hackPSU that extracts and downloads ALL content f
 
 ## Features
 
-### 🌙 **Minimal Dark Interface**
+### **Minimal Dark Interface**
 - Clean, focused dark gray UI with only essential functions
 - Two primary actions: file downloads and text export
 - Real-time progress feedback with visual status indicators
 - Cross-platform path detection (Windows/Linux/Mac)
 
-### 📥 **Comprehensive File Download** 
+### **Comprehensive File Download**
 - **All File Types**: PDFs, docs, presentations, code files, images, archives
 - **Multi-Source Discovery**: Extracts files from:
   - Course Files section via Canvas API
   - Assignment attachments and descriptions
   - Module resources and content
-  - Discussion posts and embedded files  
+  - Discussion posts and embedded files
   - Course pages and announcements
 - **Smart Organization**: `canvas_downloads/Course_Name/assignments/`, `/modules/`, `/discussions/`, `/files/`
 - **Batch Processing**: Downloads in batches with rate limiting
@@ -28,7 +28,7 @@ A minimal Chrome extension for hackPSU that extracts and downloads ALL content f
   - Complete discussion threads with replies
   - Module structure and content
   - Course pages and announcements
-  - Quiz descriptions and instructions  
+  - Quiz descriptions and instructions
   - Student roster and instructor info
   - Calendar events and deadlines
 - **Structured Format**: Table of contents with clear sections
@@ -57,7 +57,7 @@ A minimal Chrome extension for hackPSU that extracts and downloads ALL content f
 1. Navigate to any Canvas course page
 2. Click the Canvas Helper extension icon (dark interface opens)
 3. Click **"📥 Download All Course Files"**
-4. Files automatically download to: 
+4. Files automatically download to:
    - **Linux**: `~/Downloads/canvas_downloads/Course_Name/`
    - **Windows**: `%USERPROFILE%/Downloads/canvas_downloads/Course_Name/`
    - **Mac**: `~/Downloads/canvas_downloads/Course_Name/`
@@ -239,7 +239,7 @@ In this assignment, you will learn about variables...
 ## Known Limitations
 
 - Requires active Canvas session (must be logged in)
-- Canvas API access depends on user permissions  
+- Canvas API access depends on user permissions
 - Very large courses may take several minutes to process completely
 - Some institutions may have API rate limiting
 - Private or restricted content may not be accessible
