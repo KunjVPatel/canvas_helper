@@ -27,11 +27,11 @@ app.use((req, res, next) => {
   }
 });
 
-// Simple logging
+// Server logging
 function log(level, message, data = null) {
-  const timestamp = new Date().toISOString();
-  console.log(`[${timestamp}] ${level.toUpperCase()}: ${message}`);
-  if (data) console.log(JSON.stringify(data, null, 2));
+  const time = new Date().toISOString().split('T')[1].split('.')[0];
+  console.log(`[${time}] ${level.toUpperCase()}: ${message}`);
+  if (data) console.log(JSON.stringify(data));
 }
 
 // Snowflake connection
@@ -68,13 +68,10 @@ async function runQuery(sql, binds = []) {
       binds: binds,
       complete: (err, stmt, rows) => {
         if (err) {
-          log("error", "Query failed", {
-            error: err.message,
-            sql: sql.substring(0, 100),
-          });
+          log("error", "Query error", { msg: err.message });
           reject(err);
         } else {
-          log("info", "Query successful", { rowCount: rows.length });
+          log("info", "Query OK", { count: rows.length });
           resolve(rows);
         }
       },
@@ -92,13 +89,48 @@ app.get("/", (req, res) => {
   res.json({ ok: true, message: "Canvas Helper Server is running" });
 });
 
-// Snowflake ping
+// Snowflake ping with detailed connection status
 app.get("/ping-snowflake", async (req, res) => {
   try {
+    // First test basic server availability
+    log("info", "Testing Snowflake connection...");
+
+    // Check environment variables
+    const missingEnvVars = [];
+    ['SNOWFLAKE_ACCOUNT', 'SNOWFLAKE_USER', 'SNOWFLAKE_PASSWORD', 
+     'SNOWFLAKE_WAREHOUSE', 'SNOWFLAKE_DATABASE', 'SNOWFLAKE_SCHEMA'].forEach(envVar => {
+      if (!process.env[envVar]) missingEnvVars.push(envVar);
+    });
+
+    if (missingEnvVars.length > 0) {
+      log("error", "Missing environment variables", { missing: missingEnvVars });
+      return res.status(500).json({ 
+        ok: false, 
+        error: "Missing environment variables", 
+        details: `Please check: ${missingEnvVars.join(", ")}`
+      });
+    }
+
+    // Try to connect and query Snowflake
     const rows = await runQuery("SELECT CURRENT_TIMESTAMP() as server_time");
-    res.json({ ok: true, snowflake_time: rows[0].SERVER_TIME });
+    log("info", "Snowflake connection successful", { time: rows[0].SERVER_TIME });
+    res.json({ 
+      ok: true, 
+      snowflake_time: rows[0].SERVER_TIME,
+      status: "connected",
+      message: "Successfully connected to Snowflake"
+    });
   } catch (err) {
-    res.status(500).json({ ok: false, error: err.message });
+    log("error", "Snowflake connection failed", { 
+      error: err.message,
+      stack: err.stack
+    });
+    res.status(500).json({ 
+      ok: false, 
+      error: err.message,
+      status: "error",
+      details: "Check server logs for more information"
+    });
   }
 });
 
@@ -430,28 +462,28 @@ app.post("/migrate/student-ids/:course_id", async (req, res) => {
   }
 });
 
-log("info", "🚀 Canvas Helper AI Tutor Server Starting...");
-log("info", "🔎 Environment Check:", {
-  account: process.env.SNOWFLAKE_ACCOUNT ? "✅ Set" : "❌ Missing",
-  user: process.env.SNOWFLAKE_USER ? "✅ Set" : "❌ Missing",
-  warehouse: process.env.SNOWFLAKE_WAREHOUSE ? "✅ Set" : "❌ Missing",
-  database: process.env.SNOWFLAKE_DATABASE ? "✅ Set" : "❌ Missing",
-  schema: process.env.SNOWFLAKE_SCHEMA ? "✅ Set" : "❌ Missing",
-  password: process.env.SNOWFLAKE_PASSWORD ? "✅ Set" : "❌ Missing",
+log("info", "Canvas Helper AI Tutor Server Starting...");
+log("info", "Environment Check:", {
+  account: process.env.SNOWFLAKE_ACCOUNT ? "Set" : "Missing",
+  user: process.env.SNOWFLAKE_USER ? "Set" : "Missing",
+  warehouse: process.env.SNOWFLAKE_WAREHOUSE ? "Set" : "Missing",
+  database: process.env.SNOWFLAKE_DATABASE ? "Set" : "Missing",
+  schema: process.env.SNOWFLAKE_SCHEMA ? "Set" : "Missing",
+  password: process.env.SNOWFLAKE_PASSWORD ? "Set" : "Missing",
 });
 
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
-  log("info", `🚀 Canvas Helper Server running on http://localhost:${PORT}`);
-  log("info", "Available endpoints:", {
-    health: `GET http://localhost:${PORT}/`,
-    snowflakePing: `GET http://localhost:${PORT}/ping-snowflake`,
-    ingest: `POST http://localhost:${PORT}/ingest`,
-    batchIngest: `POST http://localhost:${PORT}/ingest-batch`,
-    askAITutor: `POST http://localhost:${PORT}/ask`,
-    getContent: `GET http://localhost:${PORT}/content/:student_id/:course_id`,
-    debugCourse: `GET http://localhost:${PORT}/debug/course/:course_id`,
-    migrateStudentIds: `POST http://localhost:${PORT}/migrate/student-ids/:course_id`,
+  log("info", `Server running on port ${PORT}`);
+  log("info", "Endpoints:", {
+    health: "/",
+    snowflakePing: "/ping-snowflake",
+    ingest: "/ingest",
+    batchIngest: "/ingest-batch",
+    askAITutor: "/ask",
+    getContent: "/content/:student_id/:course_id",
+    debugCourse: "/debug/course/:course_id",
+    migrateStudentIds: "/migrate/student-ids/:course_id",
   });
 });

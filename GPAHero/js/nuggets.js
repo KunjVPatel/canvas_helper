@@ -347,7 +347,7 @@ async function nuggetStreamChat() {
 
     } catch (error) {
         console.error("Nuggets Error:", error);
-        if (error === {}) {
+        if (error == {}){
             error = 'Error: {}';
 
         }

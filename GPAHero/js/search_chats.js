@@ -135,7 +135,6 @@ input_search.onkeyup = () => {
         clearTimeout(search_timer);
     }
     search_timer = setTimeout(() => {
-        console.log('searching...');
         let search_query = input_search.value.trim();
         let search_results = searchPastChats(search_query);
         if (search_results.length > 0) {

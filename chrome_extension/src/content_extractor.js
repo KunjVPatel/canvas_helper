@@ -654,9 +654,12 @@
     // Extract PDFs from current page
     extractPDFsFromPage() {
       const pdfs = [];
+      const documents = [];
+      const handledUrls = new Set();
 
-      // Look for PDF links
-      const pdfSelectors = [
+      // Look for PDF and document links
+      const documentSelectors = [
+        // PDFs
         'a[href*=".pdf"]',
         'iframe[src*=".pdf"]',
         'embed[src*=".pdf"]',
@@ -664,49 +667,169 @@
         'a[href*="/files/"][href*="pdf"]',
         'a[title*="PDF"]',
         'a[title*="pdf"]',
+        // Word docs
+        'a[href*=".doc"]',
+        'a[href*=".docx"]',
+        // PowerPoint
+        'a[href*=".ppt"]',
+        'a[href*=".pptx"]',
+        // Excel
+        'a[href*=".xls"]',
+        'a[href*=".xlsx"]',
+        // Text files
+        'a[href*=".txt"]',
+        // Canvas specific selectors
+        '.ef-item-row[data-type="file"]',
+        '.attachments .attachment',
+        '.file-upload-submission-info',
+        '.submission-file',
       ];
 
-      pdfSelectors.forEach((selector) => {
+      documentSelectors.forEach((selector) => {
         const elements = Array.from(document.querySelectorAll(selector));
         elements.forEach((element) => {
-          const url =
-            element.href || element.src || element.getAttribute("data");
-          const title =
-            element.textContent.trim() ||
-            element.title ||
-            element.alt ||
-            "PDF Document";
+          let url = element.href || element.src || element.getAttribute("data") || element.getAttribute("data-url");
+          const downloadUrl = element.getAttribute("data-download-url");
+          if (downloadUrl) url = downloadUrl;
 
-          if (url) {
-            pdfs.push({
+          // Skip if we've already handled this URL
+          if (url && !handledUrls.has(url)) {
+            handledUrls.add(url);
+
+            const title = element.textContent.trim() || 
+                         element.title || 
+                         element.alt || 
+                         element.getAttribute("data-filename") ||
+                         "Document";
+
+            const size = element.getAttribute("data-size") || 
+                        element.closest('[data-size]')?.getAttribute("data-size");
+
+            const uploadDate = element.getAttribute("data-upload-date") || 
+                             element.closest('[data-upload-date]')?.getAttribute("data-upload-date");
+
+            const fileType = this.getFileType(url);
+            
+            const docInfo = {
               url: url,
               title: title,
               type: element.tagName.toLowerCase(),
+              fileType: fileType,
+              size: size,
+              uploadDate: uploadDate,
               source: "page_content",
-            });
+              metadataExtracted: false
+            };
+
+            if (fileType === "pdf") {
+              pdfs.push(docInfo);
+            } else {
+              documents.push(docInfo);
+            }
           }
         });
       });
 
-      // Extract PDF URLs from page HTML using regex
       const htmlContent = document.documentElement.outerHTML;
-      const pdfUrlRegex = /https?:\/\/[^\s<>"'()]+\.pdf[^\s<>"']*/gi;
-      const matches = htmlContent.match(pdfUrlRegex);
+      const docUrlRegex = /https?:\/\/[^\s<>"'()]+\.(pdf|doc|docx|ppt|pptx|xls|xlsx|txt)[^\s<>"']*/gi;
+      const matches = htmlContent.match(docUrlRegex);
 
       if (matches) {
         const uniqueUrls = [...new Set(matches)];
         uniqueUrls.forEach((url) => {
-          const filename = url.split("/").pop().split("?")[0] || "document.pdf";
-          pdfs.push({
-            url: url,
-            title: filename,
-            type: "embedded_url",
-            source: "html_regex",
-          });
+          if (!handledUrls.has(url)) {
+            handledUrls.add(url);
+            const filename = url.split("/").pop().split("?")[0] || "document";
+            const fileType = this.getFileType(url);
+            const docInfo = {
+              url: url,
+              title: filename,
+              type: "embedded_url",
+              fileType: fileType,
+              source: "html_regex",
+              metadataExtracted: false
+            };
+
+            if (fileType === "pdf") {
+              pdfs.push(docInfo);
+            } else {
+              documents.push(docInfo);
+            }
+          }
         });
       }
 
+      // Add documents array to the extraction result
+      this.extractedContent.documents = documents;
+      
+      // Attempt to extract metadata for PDFs and documents
+      Promise.all([
+        ...pdfs.map(doc => this.extractDocumentMetadata(doc)),
+        ...documents.map(doc => this.extractDocumentMetadata(doc))
+      ]).then(() => {
+        console.log(`Metadata extraction completed for ${pdfs.length + documents.length} documents`);
+      }).catch(err => {
+        console.warn('Some metadata extraction failed:', err);
+      });
+
       return pdfs;
+    }
+
+    // Helper method to determine file type
+    getFileType(url) {
+      const extension = url.split('.').pop().toLowerCase().split('?')[0];
+      const documentTypes = {
+        'pdf': 'pdf',
+        'doc': 'word',
+        'docx': 'word',
+        'ppt': 'powerpoint',
+        'pptx': 'powerpoint',
+        'xls': 'excel',
+        'xlsx': 'excel',
+        'txt': 'text'
+      };
+      return documentTypes[extension] || 'unknown';
+    }
+
+    // Extract metadata from document URL
+    async extractDocumentMetadata(doc) {
+      if (doc.metadataExtracted) return doc;
+
+      try {
+        // Try to fetch headers to get content-type and content-length
+        const response = await fetch(doc.url, { method: 'HEAD' });
+        if (response.ok) {
+          doc.contentType = response.headers.get('content-type');
+          doc.size = response.headers.get('content-length');
+          doc.lastModified = response.headers.get('last-modified');
+        }
+        
+        // For PDFs, try to extract more metadata if possible
+        if (doc.fileType === 'pdf' && window.pdfjsLib) {
+          try {
+            const loadingTask = pdfjsLib.getDocument(doc.url);
+            const pdf = await loadingTask.promise;
+            doc.pageCount = pdf.numPages;
+            
+            // Get metadata
+            const metadata = await pdf.getMetadata();
+            if (metadata?.info) {
+              doc.author = metadata.info.Author;
+              doc.creationDate = metadata.info.CreationDate;
+              doc.title = metadata.info.Title || doc.title;
+              doc.keywords = metadata.info.Keywords;
+            }
+          } catch (pdfErr) {
+            console.warn('PDF metadata extraction failed:', pdfErr);
+          }
+        }
+
+        doc.metadataExtracted = true;
+      } catch (err) {
+        console.warn(`Metadata extraction failed for ${doc.url}:`, err);
+      }
+
+      return doc;
     }
 
     // Page-specific extraction methods
@@ -952,15 +1075,69 @@
       // Clone the element to avoid modifying the original
       const clone = element.cloneNode(true);
 
-      // Remove script and style elements
-      const scriptsAndStyles = clone.querySelectorAll("script, style");
-      scriptsAndStyles.forEach((el) => el.remove());
+      // Remove unwanted elements
+      const unwanted = clone.querySelectorAll("script, style, iframe, noscript");
+      unwanted.forEach((el) => el.remove());
 
-      // Get text content and clean it up
-      let text = clone.textContent || clone.innerText || "";
+      // Function to process an element's text with proper formatting
+      const processElement = (el) => {
+        const tag = el.tagName?.toLowerCase();
+        if (!tag) return el.textContent || "";
 
-      // Clean up whitespace
-      text = text.replace(/\s+/g, " ").trim();
+        let text = "";
+        const children = Array.from(el.childNodes);
+
+        // Add appropriate formatting based on element type
+        children.forEach((child, index) => {
+          if (child.nodeType === 3) { // Text node
+            text += child.textContent.trim();
+          } else if (child.nodeType === 1) { // Element node
+            const childTag = child.tagName.toLowerCase();
+            
+            // Handle specific elements
+            if (childTag === 'br') {
+              text += '\n';
+            } else if (['p', 'div'].includes(childTag)) {
+              text += processElement(child) + '\n\n';
+            } else if (childTag.match(/^h[1-6]$/)) {
+              text += '\n' + processElement(child) + '\n\n';
+            } else if (childTag === 'li') {
+              text += '• ' + processElement(child) + '\n';
+            } else if (['pre', 'code'].includes(childTag)) {
+              text += '\n' + processElement(child) + '\n';
+            } else if (childTag === 'a') {
+              const href = child.getAttribute('href');
+              text += processElement(child);
+              if (href && !text.includes(href)) {
+                text += ` [${href}]`;
+              }
+            } else {
+              text += processElement(child);
+            }
+          }
+        });
+
+        // Add extra formatting based on parent element
+        if (['ul', 'ol'].includes(tag)) {
+          text = '\n' + text + '\n';
+        } else if (tag === 'table') {
+          text = '\n' + text.trim() + '\n\n';
+        }
+
+        return text;
+      };
+
+      // Process the entire element
+      let text = processElement(clone);
+
+      // Clean up the formatted text
+      text = text
+        .replace(/[\n\r]{3,}/g, '\n\n')  // Replace 3+ line breaks with 2
+        .replace(/[ \t]+/g, ' ')         // Replace multiple spaces/tabs with single space
+        .split('\n')                     // Split into lines
+        .map(line => line.trim())        // Trim each line
+        .join('\n')                      // Rejoin with single line breaks
+        .trim();                         // Trim the final result
 
       return text;
     }
@@ -976,14 +1153,45 @@
       const scriptsAndStyles = temp.querySelectorAll("script, style");
       scriptsAndStyles.forEach((el) => el.remove());
 
+      // Replace common HTML elements with appropriate line breaks
+      const elements = temp.querySelectorAll("*");
+      elements.forEach(el => {
+        const tag = el.tagName.toLowerCase();
+        if (tag === 'br') {
+          el.replaceWith('\n');
+        } else if (['p', 'div', 'section', 'article'].includes(tag)) {
+          // Add double line break after block elements
+          el.insertAdjacentText('afterend', '\n\n');
+        } else if (tag.match(/^h[1-6]$/)) {
+          // Add extra spacing around headers
+          el.insertAdjacentText('beforebegin', '\n\n');
+          el.insertAdjacentText('afterend', '\n\n');
+        } else if (['ul', 'ol'].includes(tag)) {
+          // Add spacing around lists
+          el.insertAdjacentText('beforebegin', '\n');
+          el.insertAdjacentText('afterend', '\n');
+        } else if (tag === 'li') {
+          // Format list items
+          el.insertAdjacentText('beforebegin', '• ');
+          el.insertAdjacentText('afterend', '\n');
+        } else if (['table', 'pre', 'blockquote'].includes(tag)) {
+          // Add spacing around block content
+          el.insertAdjacentText('beforebegin', '\n\n');
+          el.insertAdjacentText('afterend', '\n\n');
+        }
+      });
+
       // Extract text content
       let text = this.extractTextContent(temp);
 
-      // Convert some HTML elements to readable text
-      text = text.replace(/<br\s*\/?>/gi, "\n");
-      text = text.replace(/<\/p>/gi, "\n\n");
-      text = text.replace(/<\/div>/gi, "\n");
-      text = text.replace(/<\/h[1-6]>/gi, "\n\n");
+      // Clean up extra whitespace and line breaks
+      text = text
+        .replace(/[\n\r]{3,}/g, '\n\n')  // Replace 3+ line breaks with 2
+        .replace(/[ \t]+/g, ' ')         // Replace multiple spaces/tabs with single space
+        .split('\n')                     // Split into lines
+        .map(line => line.trim())        // Trim each line
+        .join('\n')                      // Rejoin with single line breaks
+        .trim();                         // Trim the final result
 
       return text;
     }
@@ -1005,11 +1213,30 @@
       return new Promise((resolve) => setTimeout(resolve, ms));
     }
 
+    // Helper function for consistent section formatting
+    formatSection(title, content = '', level = 1) {
+      const separator = level === 1 ? '=' : '-';
+      return `${'\n'.repeat(2)}${title}\n${separator.repeat(40)}\n${content}\n`;
+    }
+
+    // Helper function for formatting items in a list
+    formatListItem(index, title, details = [], indent = 0) {
+      const space = ' '.repeat(indent);
+      let item = `${space}${index}. ${title}\n`;
+      if (details.length > 0) {
+        item += details
+          .filter(detail => detail[1]) // Only include non-empty details
+          .map(([label, value]) => `${space}   ${label}: ${value}`)
+          .join('\n') + '\n';
+      }
+      return item;
+    }
+
     // Generate comprehensive text export
     generateTextExport() {
       let text = "";
 
-      // Header
+      // Header with proper spacing
       text += "=".repeat(80) + "\n";
       text += `CANVAS COURSE CONTENT EXPORT\n`;
       text += `Course: ${this.extractedContent.course.name || "Unknown"}\n`;

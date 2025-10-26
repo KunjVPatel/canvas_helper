@@ -21,17 +21,18 @@
             }
 
             .header {
-                background: transparent;
-                padding: 14px 16px;
-                border-bottom: 1px solid rgba(255,255,255,0.03);
+                background: rgba(255,255,255,0.02);
+                padding: 16px;
+                border-bottom: 1px solid rgba(255,255,255,0.06);
             }
 
             .header h3 {
                 font-size: 14px;
-                font-weight: 500;
+                font-weight: 600;
                 color: #ffffff;
                 margin: 0;
-                letter-spacing: -0.3px;
+                letter-spacing: 0;
+                opacity: 0.9;
             }
 
             #course-info {
@@ -58,25 +59,31 @@
 
             .action-button {
                 width: 100%;
-                padding: 12px;
+                padding: 12px 16px;
                 background: transparent;
                 border: 1px solid rgba(255,255,255,0.08);
-                border-radius: 6px;
+                border-radius: 8px;
                 color: #ffffff;
                 font-size: 13px;
-                font-weight: 400;
+                font-weight: 500;
                 font-family: inherit;
                 cursor: pointer;
                 transition: all 0.2s ease;
                 margin-bottom: 8px;
                 display: flex;
                 align-items: center;
-                justify-content: center;
-                gap: 8px;
+                gap: 12px;
+                line-height: 20px;
+                letter-spacing: 0.01em;
+            }
+
+            .action-button .icon {
+                flex-shrink: 0;
+                opacity: 0.9;
             }
 
             .action-button:hover {
-                background: rgba(255,255,255,0.03);
+                background: rgba(255,255,255,0.04);
                 transform: translateY(-1px);
             }
 
@@ -85,39 +92,43 @@
             }
 
             .primary {
-                border-color: rgba(255,255,255,0.1);
+                background: rgba(59, 130, 246, 0.1);
+                border-color: rgba(59, 130, 246, 0.2);
             }
 
             .primary:hover {
-                border-color: rgba(255,255,255,0.15);
+                background: rgba(59, 130, 246, 0.15);
+                border-color: rgba(59, 130, 246, 0.25);
             }
 
             .secondary {
-                border-color: rgba(255,255,255,0.06);
-            }
-
-            .secondary:hover {
-                border-color: rgba(255,255,255,0.1);
-            }
-
-            .unified {
-                background: rgba(255,255,255,0.03);
-                border-color: rgba(255,255,255,0.1);
-            }
-
-            .unified:hover {
-                background: rgba(255,255,255,0.05);
-                border-color: rgba(255,255,255,0.15);
-            }
-
-            .ai-chat {
                 background: rgba(255,255,255,0.02);
                 border-color: rgba(255,255,255,0.08);
             }
 
-            .ai-chat:hover {
+            .secondary:hover {
                 background: rgba(255,255,255,0.04);
                 border-color: rgba(255,255,255,0.12);
+            }
+
+            .unified {
+                background: rgba(16, 185, 129, 0.1);
+                border-color: rgba(16, 185, 129, 0.2);
+            }
+
+            .unified:hover {
+                background: rgba(16, 185, 129, 0.15);
+                border-color: rgba(16, 185, 129, 0.25);
+            }
+
+            .ai-chat {
+                background: rgba(139, 92, 246, 0.1);
+                border-color: rgba(139, 92, 246, 0.2);
+            }
+
+            .ai-chat:hover {
+                background: rgba(139, 92, 246, 0.15);
+                border-color: rgba(139, 92, 246, 0.25);
             }
 
             .action-description {
@@ -128,56 +139,171 @@
                 padding: 0 2px;
             }
 
+            .sidebar {
+                width: 240px;
+                background: rgba(0, 0, 0, 0.3);
+                border-right: 1px solid rgba(255, 255, 255, 0.04);
+                padding: 16px;
+            }
+
+            .sidebar-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 12px;
+            }
+
+            .sidebar-header h4 {
+                font-size: 13px;
+                font-weight: 600;
+                color: #ffffff;
+                margin: 0;
+            }
+
+            .course-count {
+                font-size: 11px;
+                color: rgba(255, 255, 255, 0.5);
+            }
+
+            .course-list {
+                margin-top: 8px;
+            }
+
+            .course-item {
+                padding: 10px;
+                background: rgba(255, 255, 255, 0.02);
+                border: 1px solid rgba(255, 255, 255, 0.04);
+                border-radius: 6px;
+                margin-bottom: 8px;
+                cursor: pointer;
+                transition: all 0.2s ease;
+            }
+
+            .course-item:hover {
+                background: rgba(255, 255, 255, 0.04);
+                border-color: rgba(255, 255, 255, 0.08);
+            }
+
+            .course-item.active {
+                background: rgba(59, 130, 246, 0.1);
+                border-color: rgba(59, 130, 246, 0.2);
+            }
+
+            .course-info {
+                display: flex;
+                flex-direction: column;
+                gap: 4px;
+            }
+
+            .course-name {
+                font-size: 12px;
+                font-weight: 500;
+                color: #ffffff;
+            }
+
+            .file-count {
+                font-size: 11px;
+                color: rgba(255, 255, 255, 0.5);
+            }
+
+            .course-actions {
+                display: flex;
+                gap: 8px;
+                margin-top: 8px;
+            }
+
+            .course-actions button {
+                padding: 4px 8px;
+                font-size: 11px;
+                border-radius: 4px;
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                background: transparent;
+                color: rgba(255, 255, 255, 0.7);
+                cursor: pointer;
+                transition: all 0.2s ease;
+            }
+
+            .course-actions button:hover {
+                background: rgba(255, 255, 255, 0.04);
+                border-color: rgba(255, 255, 255, 0.15);
+            }
+
             .server-status {
                 background: rgba(255,255,255,0.02);
-                padding: 8px 12px;
-                border-radius: 4px;
-                font-size: 11px;
-                margin-bottom: 12px;
+                padding: 12px 16px;
+                border-radius: 8px;
+                font-size: 12px;
+                margin: 16px;
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
-                border: 1px solid rgba(255,255,255,0.03);
+                border: 1px solid rgba(255,255,255,0.08);
+                letter-spacing: 0.01em;
             }
 
             .server-connected {
-                color: #10b981;
+                color: #34d399;
+                display: flex;
+                align-items: center;
+                gap: 6px;
+            }
+
+            .server-connected::before {
+                content: "";
+                display: inline-block;
+                width: 8px;
+                height: 8px;
+                border-radius: 50%;
+                background-color: #34d399;
             }
 
             .server-disconnected {
-                color: #ef4444;
+                color: #f87171;
+                display: flex;
+                align-items: center;
+                gap: 6px;
+            }
+
+            .server-disconnected::before {
+                content: "";
+                display: inline-block;
+                width: 8px;
+                height: 8px;
+                border-radius: 50%;
+                background-color: #f87171;
             }
 
             #status {
                 background: rgba(255,255,255,0.02);
-                border: 1px solid rgba(255,255,255,0.03);
-                border-radius: 4px;
-                padding: 10px 12px;
-                font-size: 11px;
+                border: 1px solid rgba(255,255,255,0.08);
+                border-radius: 8px;
+                padding: 12px 16px;
+                font-size: 12px;
                 color: rgba(255,255,255,0.7);
-                margin-top: 16px;
-                line-height: 1.4;
-                min-height: 40px;
+                margin: 16px 0 0;
+                line-height: 1.5;
+                min-height: 44px;
                 display: flex;
                 align-items: center;
+                letter-spacing: 0.01em;
             }
 
             .status-success {
                 background: rgba(16,185,129,0.1) !important;
                 border-color: rgba(16,185,129,0.2) !important;
-                color: #10b981 !important;
+                color: #34d399 !important;
             }
 
             .status-error {
                 background: rgba(239,68,68,0.1) !important;
                 border-color: rgba(239,68,68,0.2) !important;
-                color: #ef4444 !important;
+                color: #f87171 !important;
             }
 
             .status-working {
                 background: rgba(245,158,11,0.1) !important;
                 border-color: rgba(245,158,11,0.2) !important;
-                color: #f59e0b !important;
+                color: #fbbf24 !important;
             }
 
             .icon {
@@ -228,29 +354,42 @@
         <div id="course-info"></div>
 
         <div class="server-status" id="server-status">
-            <span>🔗 Server Status:</span>
-            <span id="server-indicator" class="server-disconnected"
-                >Checking...</span
-            >
+            <span>Server Status:</span>
+            <span id="server-indicator" class="server-disconnected">Checking...</span>
         </div>
 
-        <div class="main-content">
-            <div class="action-section">
-                <button id="unified-extract-btn" class="action-button unified">
-                    <span class="icon">🚀</span>
-                    Extract All + Upload to AI
-                </button>
-                <div class="action-description">
-                    Extracts ALL course content and uploads directly to
-                    Snowflake for AI tutoring
-                </div>
+        <div id="course-sidebar" class="sidebar">
+        <div class="sidebar-header">
+            <h4>Tracked Courses</h4>
+            <div class="course-count">0 courses</div>
+        </div>
+        <div id="course-list" class="course-list">
+            <!-- Course items will be inserted here -->
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="action-section">
+            <button id="unified-extract-btn" class="action-button unified">
+                <svg class="icon" viewBox="0 0 24 24" width="16" height="16">
+                    <path fill="currentColor" d="M13 3l3.293 3.293-7 7 1.414 1.414 7-7L21 11V3z"/>
+                    <path fill="currentColor" d="M19 19H5V5h7l-2-2H5c-1.103 0-2 .897-2 2v14c0 1.103.897 2 2 2h14c1.103 0 2-.897 2-2v-5l-2-2v7z"/>
+                </svg>
+                Extract All + Upload to AI
+            </button>
+            <div class="action-description">
+                Extracts ALL course content and uploads directly to
+                Snowflake for AI tutoring
             </div>
+        </div>
 
             <div class="divider"></div>
 
             <div class="action-section">
                 <button id="get-files-btn" class="action-button primary">
-                    <span class="icon">📥</span>
+                    <svg class="icon" viewBox="0 0 24 24" width="16" height="16">
+                        <path fill="currentColor" d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                    </svg>
                     Download Course Files
                 </button>
                 <div class="action-description">
@@ -260,7 +399,9 @@
 
             <div class="action-section">
                 <button id="extract-all-btn" class="action-button secondary">
-                    <span class="icon">📋</span>
+                    <svg class="icon" viewBox="0 0 24 24" width="16" height="16">
+                        <path fill="currentColor" d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2z"/>
+                    </svg>
                     Export Course Text
                 </button>
                 <div class="action-description">
@@ -272,7 +413,9 @@
 
             <div class="chat-section">
                 <button id="open-chat-btn" class="action-button ai-chat">
-                    <span class="icon">🏆</span>
+                    <svg class="icon" viewBox="0 0 24 24" width="16" height="16">
+                        <path fill="currentColor" d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/>
+                    </svg>
                     Launch GPA Hero
                 </button>
                 <div class="action-description">

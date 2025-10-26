@@ -74,11 +74,7 @@ class GPAHero {
         }
       }
 
-      console.log("Course info loaded:", {
-        student: this.currentStudent,
-        course: this.currentCourse,
-        name: this.courseName,
-      });
+      // Course info loaded
     } catch (error) {
       console.error("Error loading course info:", error);
     }
@@ -419,7 +415,7 @@ class GPAHero {
       metaDiv.className = "message-meta";
 
       const leftMeta = document.createElement("span");
-      leftMeta.textContent = `🤖 GPA Hero`;
+      leftMeta.textContent = `GPA Hero`;
 
       const rightMeta = document.createElement("span");
       rightMeta.textContent = meta.sources
@@ -553,4 +549,4 @@ window.setupCourse = (studentId, courseId, courseName) => {
   }
 };
 
-console.log("🏆 GPA Hero initialized");
+console.log("GPA Hero initialized");
