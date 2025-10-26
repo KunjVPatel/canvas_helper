@@ -72,3 +72,5 @@ build/
 
 # Git directories in subdirectories
 **/.git/
+
+node_modules/
