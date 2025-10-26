@@ -25,6 +25,12 @@ class GPAHero {
     this.quickQuestions = document.getElementById("quick-questions");
     this.setupNeeded = document.getElementById("setup-needed");
 
+  // Sidebar elements (dynamic class-based UI)
+  this.classSelect = document.getElementById("class-select");
+  this.addClassBtn = document.getElementById("add-class-btn");
+  this.sidebarContent = document.getElementById("sidebar-content");
+  this.savedClasses = [];
+
     this.init();
   }
 
@@ -32,6 +38,7 @@ class GPAHero {
     await this.loadCourseInfo();
     await this.checkServerConnection();
     this.setupEventListeners();
+    this.setupSidebar();
     this.updateUI();
   }
 
@@ -135,6 +142,154 @@ class GPAHero {
 
     // Focus input on load
     this.messageInput.focus();
+    
+    // Sidebar interactions (delegated to setupSidebar if elements exist)
+  }
+
+  // Sidebar: load classes and wire up interactions
+  setupSidebar() {
+    try {
+      // load classes from localStorage
+      this.loadSavedClasses();
+
+      if (this.classSelect) {
+        this.renderClassOptions();
+
+        // When user changes class selection
+        this.classSelect.addEventListener("change", (e) => this.onClassSelected(e));
+      }
+
+      if (this.addClassBtn) {
+        this.addClassBtn.addEventListener("click", () => this.addClassPrompt());
+      }
+
+      // Render the sidebar for the current course if available
+      this.renderSidebarForCourse(this.currentCourse);
+    } catch (err) {
+      console.error("Sidebar setup failed:", err);
+    }
+  }
+
+  loadSavedClasses() {
+    try {
+      const raw = localStorage.getItem("gpa_hero_classes");
+      if (raw) {
+        this.savedClasses = JSON.parse(raw);
+      } else {
+        this.savedClasses = [];
+      }
+      // Ensure current course is present
+      if (this.currentCourse && !this.savedClasses.find((c) => c.id === this.currentCourse)) {
+        this.savedClasses.unshift({ id: this.currentCourse, name: this.courseName || this.currentCourse });
+        this.saveClasses();
+      }
+    } catch (err) {
+      console.error("Failed to load saved classes:", err);
+      this.savedClasses = [];
+    }
+  }
+
+  saveClasses() {
+    try {
+      localStorage.setItem("gpa_hero_classes", JSON.stringify(this.savedClasses));
+    } catch (err) {
+      console.error("Failed to save classes:", err);
+    }
+  }
+
+  renderClassOptions() {
+    if (!this.classSelect) return;
+    // Clear existing options
+    this.classSelect.innerHTML = "";
+    const placeholder = document.createElement("option");
+    placeholder.value = "";
+    placeholder.textContent = "-- Select class --";
+    this.classSelect.appendChild(placeholder);
+
+    this.savedClasses.forEach((c) => {
+      const opt = document.createElement("option");
+      opt.value = c.id;
+      opt.textContent = c.name || c.id;
+      if (this.currentCourse && c.id === this.currentCourse) opt.selected = true;
+      this.classSelect.appendChild(opt);
+    });
+  }
+
+  onClassSelected(e) {
+    const selected = e.target.value;
+    if (!selected) return;
+    // If selected, switch course context
+    const cls = this.savedClasses.find((c) => c.id === selected);
+    const name = cls ? cls.name : selected;
+    this.setupCourse(`student_course_${selected}`, selected, name);
+    this.renderSidebarForCourse(selected);
+  }
+
+  addClassPrompt() {
+    const id = prompt("Enter course id (example: course_123):");
+    if (!id) return;
+    const name = prompt("Enter course display name:", id) || id;
+    // Add to saved classes if not present
+    if (!this.savedClasses.find((c) => c.id === id)) {
+      this.savedClasses.unshift({ id, name });
+      this.saveClasses();
+      this.renderClassOptions();
+    }
+    // Auto-select newly added
+    if (this.classSelect) {
+      this.classSelect.value = id;
+      this.onClassSelected({ target: this.classSelect });
+    }
+  }
+
+  // Render sidebar contents for a course id
+  renderSidebarForCourse(courseId) {
+    if (!this.sidebarContent) return;
+    this.sidebarContent.innerHTML = "";
+
+    if (!courseId) {
+      const empty = document.createElement("div");
+      empty.className = "sidebar-item";
+      empty.id = "sidebar-empty";
+      empty.textContent = "Select a class to see details";
+      this.sidebarContent.appendChild(empty);
+      return;
+    }
+
+    // Basic fallback content — in future this can fetch live course summary from server
+    const title = document.createElement("div");
+    title.className = "sidebar-item";
+    title.innerHTML = `<strong>${this.courseName || courseId}</strong>`;
+    this.sidebarContent.appendChild(title);
+
+    const assign = document.createElement("div");
+    assign.className = "sidebar-item";
+    assign.innerHTML = `<div style="font-weight:700">Assignments</div><div style="font-size:13px;color:#9aa4b2">No assignments loaded — use the Canvas Helper extension to extract course content.</div>`;
+    this.sidebarContent.appendChild(assign);
+
+    const resources = document.createElement("div");
+    resources.className = "sidebar-item";
+    resources.innerHTML = `<div style="font-weight:700">Quick Links</div><ul style="margin:6px 0 0 16px;color:#9aa4b2"><li><a href="#" style="color:inherit">View syllabus</a></li><li><a href="#" style="color:inherit">Lecture notes</a></li><li><a href="#" style="color:inherit">Recent uploads</a></li></ul>`;
+    this.sidebarContent.appendChild(resources);
+
+    const actions = document.createElement("div");
+    actions.className = "sidebar-item";
+    actions.innerHTML = `<button id="refresh-course-content" style="width:100%;padding:8px;border-radius:6px;border:1px solid #374151;background:#081024;color:#cbd5e1;cursor:pointer">Refresh course content</button>`;
+    this.sidebarContent.appendChild(actions);
+
+    // wire refresh button
+    const refreshBtn = document.getElementById("refresh-course-content");
+    if (refreshBtn) {
+      refreshBtn.addEventListener("click", async () => {
+        // attempt to check course content and update UI
+        const has = await this.checkCourseContent();
+        if (has) {
+          alert("Course content found — you can now ask course-specific questions.");
+        } else {
+          alert("No course content uploaded. Please use the Canvas Helper extension to upload materials.");
+        }
+      });
+    }
   }
 
   // Update UI based on current state
