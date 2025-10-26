@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Canvas Helper",
-  "version": "0.1.0",
-  "description": "Course material based questioning tool",
+  "name": "Canvas Helper + GPA Hero",
+  "version": "1.0.0",
+  "description": "AI-powered study assistant that extracts Canvas course materials and provides personalized tutoring through GPA Hero with Snowflake integration",
   "permissions": ["downloads", "activeTab", "scripting", "storage"],
   "host_permissions": [
     "https://*.instructure.com/*",
@@ -28,11 +28,11 @@
   ],
   "action": {
     "default_popup": "public/popup.html",
-    "default_title": "Canvas Helper"
+    "default_title": "Canvas Helper + GPA Hero"
   },
   "web_accessible_resources": [
     {
-      "resources": ["src/*.js", "public/*.html"],
+      "resources": ["src/*.js", "public/*.html", "public/chat.html"],
       "matches": [
         "https://*.instructure.com/*",
         "https://canvas.psu.edu/*",

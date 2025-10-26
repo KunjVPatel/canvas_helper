@@ -1,8 +1,0 @@
-POST http://localhost:3000/ask
-Content-Type: application/json
-
-{
-  "student_id": "student123",
-  "course_id": "phys250",
-  "question": "what should I study for exam 2?"
-}

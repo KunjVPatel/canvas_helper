@@ -1,10 +1,14 @@
 document.addEventListener("DOMContentLoaded", () => {
   const getBtn = document.getElementById("get-files-btn");
   const extractAllBtn = document.getElementById("extract-all-btn");
+  const unifiedExtractBtn = document.getElementById("unified-extract-btn");
+  const openChatBtn = document.getElementById("open-chat-btn");
   const statusEl = document.getElementById("status");
   const courseInfoEl = document.getElementById("course-info");
+  const serverStatusEl = document.getElementById("server-indicator");
 
   let currentCourse = null;
+  let serverConnected = false;
 
   // Platform detection function
   function detectPlatform() {
@@ -14,6 +18,30 @@ document.addEventListener("DOMContentLoaded", () => {
     if (userAgent.includes("linux")) return "Linux";
     return "Unknown";
   }
+
+  // Check server connection
+  async function checkServerConnection() {
+    try {
+      const response = await fetch("http://localhost:3000/ping-snowflake");
+      const result = await response.json();
+      serverConnected = result.ok;
+
+      if (serverConnected) {
+        serverStatusEl.textContent = "Connected ✅";
+        serverStatusEl.className = "server-connected";
+      } else {
+        serverStatusEl.textContent = "Server Error ❌";
+        serverStatusEl.className = "server-disconnected";
+      }
+    } catch (error) {
+      serverConnected = false;
+      serverStatusEl.textContent = "Disconnected ❌";
+      serverStatusEl.className = "server-disconnected";
+    }
+  }
+
+  // Check server connection on load
+  checkServerConnection();
 
   function setStatus(msg, type = "info") {
     statusEl.textContent = msg;
@@ -116,6 +144,8 @@ document.addEventListener("DOMContentLoaded", () => {
         "⚠️ Some downloads failed - check console for details",
         "warning",
       );
+    } else if (message.type === "extraction-status") {
+      setStatus(message.message, message.statusType);
     }
   });
 
@@ -310,6 +340,136 @@ document.addEventListener("DOMContentLoaded", () => {
           }
         },
       );
+    });
+  });
+
+  // Unified extraction button
+  unifiedExtractBtn?.addEventListener("click", async () => {
+    if (!serverConnected) {
+      setStatus(
+        "❌ Server not connected. Please start the Canvas Helper server.",
+        "error",
+      );
+      return;
+    }
+
+    setStatus("🚀 Starting unified extraction and upload...", "working");
+
+    chrome.tabs.query({ active: true, currentWindow: true }, async (tabs) => {
+      if (!tabs || tabs.length === 0) {
+        return setStatus("❌ No active tab", "error");
+      }
+      const tab = tabs[0];
+
+      try {
+        // Inject the unified extractor
+        await chrome.scripting.executeScript({
+          target: { tabId: tab.id },
+          files: ["src/unified_extractor.js"],
+        });
+
+        // Start the extraction process
+        chrome.tabs.sendMessage(
+          tab.id,
+          { type: "extract-and-upload-unified" },
+          (response) => {
+            if (chrome.runtime.lastError) {
+              setStatus("❌ Error: Could not start extraction", "error");
+              console.error("Extraction error:", chrome.runtime.lastError);
+              return;
+            }
+
+            if (response && response.success) {
+              setStatus(
+                `✅ Successfully uploaded ${response.contentCount} items to Snowflake!`,
+                "success",
+              );
+              setCourseInfo(
+                response.courseInfo.courseName,
+                response.courseInfo.courseId,
+                response.contentCount,
+                detectPlatform(),
+              );
+
+              // Enable chat button
+              if (openChatBtn) {
+                openChatBtn.style.opacity = "1";
+                openChatBtn.disabled = false;
+              }
+            } else {
+              const errorMsg = response?.error || "Unknown error occurred";
+              setStatus("❌ Extraction failed: " + errorMsg, "error");
+              console.error("Unified extraction error:", errorMsg);
+            }
+          },
+        );
+      } catch (error) {
+        setStatus("❌ Failed to inject extractor: " + error.message, "error");
+        console.error("Script injection error:", error);
+      }
+    });
+  });
+
+  // Open AI chat button - launches OrionChat
+  openChatBtn?.addEventListener("click", () => {
+    if (!serverConnected) {
+      setStatus(
+        "❌ Server not connected. Please start the Canvas Helper server.",
+        "error",
+      );
+      return;
+    }
+
+    // Get current course info for OrionChat
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      if (tabs && tabs.length > 0) {
+        const currentTab = tabs[0];
+
+        // Try to extract course info from current Canvas tab
+        let courseId = "unknown";
+        let courseName = "Canvas Course";
+
+        // Extract course ID from Canvas URL
+        const urlMatch = currentTab.url?.match(/\/courses\/(\d+)/);
+        if (urlMatch) {
+          courseId = urlMatch[1];
+        }
+
+        // Generate consistent student ID based on course ID
+        let studentId = `student_course_${courseId}`;
+
+        // Store consistent student ID in localStorage for future use
+        localStorage.setItem("canvas_helper_student_id", studentId);
+
+        // Extract course name from tab title
+        if (currentTab.title && !currentTab.title.includes("Canvas")) {
+          courseName = currentTab.title.split(" - ")[0] || courseName;
+        }
+
+        // Try to get stored course info or use extracted values
+        if (currentCourse) {
+          courseName = currentCourse.courseName || courseName;
+          courseId = currentCourse.courseId || courseId;
+          // Always use the consistent student ID format
+          studentId = currentCourse.studentId || studentId;
+        }
+
+        // Build GPA Hero URL with Canvas Helper parameters
+        const gpaHeroUrl = `http://localhost:8080/index.html?student_id=${encodeURIComponent(studentId)}&course_id=${encodeURIComponent(courseId)}&course_name=${encodeURIComponent(courseName)}`;
+
+        // Open GPA Hero in new tab
+        chrome.tabs.create({ url: gpaHeroUrl }, (newTab) => {
+          if (chrome.runtime.lastError) {
+            setStatus(
+              "❌ Could not open chat. Make sure GPA Hero is accessible.",
+              "error",
+            );
+            console.error("Error opening GPA Hero:", chrome.runtime.lastError);
+          } else {
+            setStatus("✅ Opening GPA Hero AI Tutor...", "success");
+          }
+        });
+      }
     });
   });
 });
