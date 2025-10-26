@@ -252,3 +252,7 @@ This project is created for hackPSU and is intended for educational purposes.
 ## Contributing
 
 This is a hackPSU project. Feel free to contribute improvements and bug fixes.
+
+## notes
+
+We built a personalized study assistant for each class. We ingest your slides, notes, and assignments from Canvas into Snowflake. Then we do retrieval from Snowflake and call Snowflake Cortex (Mistral Large 2) to generate study plans, explanations, and practice questions just for you.

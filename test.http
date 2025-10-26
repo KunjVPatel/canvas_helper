@@ -1,10 +1,8 @@
-POST http://localhost:3000/ingest
+POST http://localhost:3000/ask
 Content-Type: application/json
 
 {
   "student_id": "student123",
   "course_id": "phys250",
-  "file_name": "Lecture3_ElectricFields.pdf",
-  "file_type": "pdf",
-  "raw_text": "Electric fields are vectors that point away from positive charges and toward negative charges."
+  "question": "what should I study for exam 2?"
 }
