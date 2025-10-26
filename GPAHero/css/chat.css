@@ -918,7 +918,6 @@ html[data-theme="dark"] #settings {
     box-sizing: border-box;
     display: inline-block;
     font-weight: 600;
-    float: right;
     margin: 2px;
     border: 1px solid #ccc;
     border-radius: 3px;
