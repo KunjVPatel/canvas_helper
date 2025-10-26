@@ -1784,3 +1784,28 @@
 {"level":"INFO","message":"[1:02:23.104 PM]: No config file path found. Client config will not be used."}
 {"level":"INFO","message":"[1:02:23.105 PM]: Easy Logging is disabled as no config has been found"}
 {"level":"INFO","message":"[1:02:23.119 PM]: Connection[id: c945f5a6-3fe7-4710-8cc3-5f280eeff505] - connected successfully after 35.81 milliseconds"}
+{"level":"INFO","message":"[1:02:55.813 PM]: Creating new connection object"}
+{"level":"INFO","message":"[1:02:55.862 PM]: Creating Connection[id: 013409fa-e105-4e07-8b51-21ab1fb0397c] with host: hvc52712.us-east-1.snowflakecomputing.com, account: hvc52712, accessUrl: https://hvc52712.us-east-1.snowflakecomputing.com, user: KVP5842, role: undefined, database: CANVAS_HELPER, schema: PUBLIC, warehouse: COMPUTE_WH, proxy was not configured, password is provided, region: us-east-1, authenticator: SNOWFLAKE, ocsp mode: FAIL_OPEN, os: win32, os version: 10.0.26100"}
+{"level":"INFO","message":"[1:02:55.865 PM]: Connection[id: 013409fa-e105-4e07-8b51-21ab1fb0397c] additional details: passcode in password is provided, passcode is not provided, private key is not provided, application: undefined, client name: snowflake-sdk, client version: 2.3.1, retry timeout: 300, private key path: undefined, private key pass is not provided, client store temporary credential: false, browser response timeout: 120000"}
+{"level":"INFO","message":"[1:02:55.874 PM]: Connection[id: 013409fa-e105-4e07-8b51-21ab1fb0397c] - connection object created successfully."}
+{"level":"INFO","message":"[1:02:55.878 PM]: Connection[id: 013409fa-e105-4e07-8b51-21ab1fb0397c] - connecting. Associated Snowflake domain: GLOBAL"}
+{"level":"INFO","message":"[1:02:55.885 PM]: Connection[id: 013409fa-e105-4e07-8b51-21ab1fb0397c] - authentication successful using: SNOWFLAKE"}
+{"level":"INFO","message":"[1:02:55.893 PM]: Trying to initialize Easy Logging"}
+{"level":"INFO","message":"[1:02:55.899 PM]: No client config detected."}
+{"level":"INFO","message":"[1:02:55.900 PM]: No config file path found. Client config will not be used."}
+{"level":"INFO","message":"[1:02:55.902 PM]: Easy Logging is disabled as no config has been found"}
+{"level":"INFO","message":"[1:02:55.920 PM]: Connection[id: 013409fa-e105-4e07-8b51-21ab1fb0397c] - connected successfully after 43.02 milliseconds"}
+{"level":"INFO","message":"[1:02:56.792 PM]: Creating new connection object"}
+{"level":"INFO","message":"[1:02:56.795 PM]: Creating Connection[id: 928335cc-d073-42c3-9fa7-be7026b7be44] with host: hvc52712.us-east-1.snowflakecomputing.com, account: hvc52712, accessUrl: https://hvc52712.us-east-1.snowflakecomputing.com, user: KVP5842, role: undefined, database: CANVAS_HELPER, schema: PUBLIC, warehouse: COMPUTE_WH, proxy was not configured, password is provided, region: us-east-1, authenticator: SNOWFLAKE, ocsp mode: FAIL_OPEN, os: win32, os version: 10.0.26100"}
+{"level":"INFO","message":"[1:02:56.796 PM]: Connection[id: 928335cc-d073-42c3-9fa7-be7026b7be44] additional details: passcode in password is provided, passcode is not provided, private key is not provided, application: undefined, client name: snowflake-sdk, client version: 2.3.1, retry timeout: 300, private key path: undefined, private key pass is not provided, client store temporary credential: false, browser response timeout: 120000"}
+{"level":"INFO","message":"[1:02:56.798 PM]: Connection[id: 928335cc-d073-42c3-9fa7-be7026b7be44] - connection object created successfully."}
+{"level":"INFO","message":"[1:02:56.800 PM]: Connection[id: 928335cc-d073-42c3-9fa7-be7026b7be44] - connecting. Associated Snowflake domain: GLOBAL"}
+{"level":"INFO","message":"[1:02:56.801 PM]: Connection[id: 928335cc-d073-42c3-9fa7-be7026b7be44] - authentication successful using: SNOWFLAKE"}
+{"level":"INFO","message":"[1:02:56.812 PM]: Connection[id: 928335cc-d073-42c3-9fa7-be7026b7be44] - connected successfully after 12.42 milliseconds"}
+{"level":"INFO","message":"[1:03:04.265 PM]: Creating new connection object"}
+{"level":"INFO","message":"[1:03:04.267 PM]: Creating Connection[id: b99085df-468c-474e-9316-f430915a0cca] with host: hvc52712.us-east-1.snowflakecomputing.com, account: hvc52712, accessUrl: https://hvc52712.us-east-1.snowflakecomputing.com, user: KVP5842, role: undefined, database: CANVAS_HELPER, schema: PUBLIC, warehouse: COMPUTE_WH, proxy was not configured, password is provided, region: us-east-1, authenticator: SNOWFLAKE, ocsp mode: FAIL_OPEN, os: win32, os version: 10.0.26100"}
+{"level":"INFO","message":"[1:03:04.268 PM]: Connection[id: b99085df-468c-474e-9316-f430915a0cca] additional details: passcode in password is provided, passcode is not provided, private key is not provided, application: undefined, client name: snowflake-sdk, client version: 2.3.1, retry timeout: 300, private key path: undefined, private key pass is not provided, client store temporary credential: false, browser response timeout: 120000"}
+{"level":"INFO","message":"[1:03:04.269 PM]: Connection[id: b99085df-468c-474e-9316-f430915a0cca] - connection object created successfully."}
+{"level":"INFO","message":"[1:03:04.270 PM]: Connection[id: b99085df-468c-474e-9316-f430915a0cca] - connecting. Associated Snowflake domain: GLOBAL"}
+{"level":"INFO","message":"[1:03:04.276 PM]: Connection[id: b99085df-468c-474e-9316-f430915a0cca] - authentication successful using: SNOWFLAKE"}
+{"level":"INFO","message":"[1:03:04.285 PM]: Connection[id: b99085df-468c-474e-9316-f430915a0cca] - connected successfully after 14.05 milliseconds"}
